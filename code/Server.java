@@ -2,10 +2,15 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.io.*;
 import java.util.*;
+import java.text.SimpleDateFormat;
 
 public class Server
 {
-    public static ArrayList connectedUsers = new ArrayList();
+    public static Date date = new Date();
+    public static SimpleDateFormat ft = new SimpleDateFormat ("MM/dd/yy, h:mm a, ");
+    public static ArrayList<String> knownUsers = new ArrayList<String>();
+    public static ArrayList<String> connectedUsers = new ArrayList<String>();
+    public static ArrayList<String[]> messages = new ArrayList<String[]>();
     public class smallServ implements Runnable
     {
 	Socket localClient;
@@ -26,7 +31,12 @@ public class Server
 		print.flush();
 	
 		String name = input.readLine();
-		
+		if(knownUsers.indexOf(name) > -1)
+		    System.out.println(ft.format(date)+"Connection by known user "+name + ".");
+		else
+		    System.out.println(ft.format(date)+"Connection by unknown user "+name + ".");
+		knownUsers.add(name);
+		connectedUsers.add(name);
 		boolean exit = false;
 		while(!exit)
 		{
@@ -40,18 +50,40 @@ public class Server
 		    switch (choice)
 		    {
 		    case 1:
+			System.out.println(ft.format(date)+name+" displays all known users.");
+			print.println(knownUsers.size());
+			print.flush();
+			for(int i = 0; i<knownUsers.size(); i++)
+			{
+			    print.println(knownUsers.get(i));
+			}
 			break;
 		    case 2:
+			System.out.println(ft.format(date)+name+" displays all connected users.");
+			print.println(connectedUsers.size());
+			print.flush();
+			for(int i = 0; i<connectedUsers.size(); i++)
+			{
+			    print.println(connectedUsers.get(i));
+			}
 			break;
 		    case 3:
+			String reciever = input.readLine();
+			String message = input.readLine();
+			String fullMessage = "From "+name+", "+ft.format(date)+message;
+			System.out.println(ft.format(date)+name+" posts a message for "+reciever+".");
 			break;
 		    case 4:
+			System.out.println(ft.format(date)+name+" posts a message for all connected users.");
 			break;
 		    case 5:
+			System.out.println(ft.format(date)+name+" posts a message for all known users.");
 			break;
 		    case 6:
+			System.out.println(ft.format(date)+name+" gets messages.");
 			break;
 		    case 7:
+			System.out.println(ft.format(date)+name+" exits");
 			exit = true;
 			break;
 		    default:
@@ -60,6 +92,7 @@ public class Server
 		    }
 		}
 		//localClient.close();
+		connectedUsers.remove(name);
 	    }
 	    catch(IOException e){}
 	    
