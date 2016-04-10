@@ -1,5 +1,6 @@
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.concurrent.Semaphore;
 import java.io.*;
 import java.util.*;
 import java.text.SimpleDateFormat;
@@ -10,7 +11,8 @@ public class Server
     public static SimpleDateFormat ft = new SimpleDateFormat ("MM/dd/yy, h:mm a, ");
     public static ArrayList<String> knownUsers = new ArrayList<String>();
     public static ArrayList<String> connectedUsers = new ArrayList<String>();
-    public static ArrayList<String[]> messages = new ArrayList<String[]>();
+    public static ArrayList<ArrayList<String>> messages = new ArrayList<ArrayList<String>>();
+    public static Semaphore sem_add_message = new Semaphore(1, true);
     public class smallServ implements Runnable
     {
 	Socket localClient;
@@ -19,6 +21,25 @@ public class Server
 	    localClient = cli;
 	}
 	
+	public void addMessage(String name, String message)
+	{
+	    try{sem_add_message.acquire();}
+	    catch(Exception e){}
+	    ////////////////////
+	    if(knownUsers.indexOf(name) != -1)
+	    {
+		getMessageList(name).add(message);
+	    }
+	    ////////////////////
+	    try{sem_add_message.release();}
+	    catch(Exception e){}
+	}
+
+	public ArrayList<String> getMessageList(String name)
+	{
+	    return messages.get(knownUsers.indexOf(name));
+	}
+
 	public void run()
 	{
 	    try
@@ -29,14 +50,33 @@ public class Server
 	
 		print.println("Server is Responding");
 		print.flush();
-	
-		String name = input.readLine();
-		if(knownUsers.indexOf(name) > -1)
-		    System.out.println(ft.format(date)+"Connection by known user "+name + ".");
-		else
-		    System.out.println(ft.format(date)+"Connection by unknown user "+name + ".");
-		knownUsers.add(name);
-		connectedUsers.add(name);
+		boolean doName = true;
+		String name = "";
+		while(doName)
+		{
+		    doName = false;
+		    name = input.readLine();
+		    
+		    
+		    //System.out.println(connectedUsers.indexOf(name));
+		    if(connectedUsers.indexOf(name) != -1)
+			doName = true;
+		    else
+		    {
+			if(knownUsers.indexOf(name) > -1)
+			    System.out.println(ft.format(date)+"Connection by known user "+name + ".");
+			else
+			    System.out.println(ft.format(date)+"Connection by unknown user "+name + ".");
+		    }
+		    if(knownUsers.indexOf(name) == -1)
+		    {
+			messages.add(new ArrayList<String>());
+			knownUsers.add(name);
+		    }
+		    print.println(doName);
+		    print.flush();
+		    connectedUsers.add(name);
+		}
 		boolean exit = false;
 		while(!exit)
 		{
@@ -69,17 +109,59 @@ public class Server
 			break;
 		    case 3:
 			String reciever = input.readLine();
+			if(knownUsers.indexOf(reciever) == -1)
+			{
+			    messages.add(new ArrayList<String>());
+			    knownUsers.add(reciever);
+			}
 			String message = input.readLine();
 			String fullMessage = "From "+name+", "+ft.format(date)+message;
+			
+			addMessage(reciever, fullMessage);
 			System.out.println(ft.format(date)+name+" posts a message for "+reciever+".");
 			break;
 		    case 4:
+			String message2 = input.readLine();
+			String fullMessage2 = "From "+name+", "+ft.format(date)+message2;
+			
+			for(int i = 0; i< connectedUsers.size(); i++)
+			{
+			    addMessage(connectedUsers.get(i), fullMessage2);    
+			}
+			
 			System.out.println(ft.format(date)+name+" posts a message for all connected users.");
 			break;
 		    case 5:
+			String message3 = input.readLine();
+			String fullMessage3 = "From "+name+", "+ft.format(date)+message3;
+			
+			for(int i = 0; i< knownUsers.size(); i++)
+			{
+			    addMessage(knownUsers.get(i), fullMessage3);    
+			}
 			System.out.println(ft.format(date)+name+" posts a message for all known users.");
 			break;
 		    case 6:
+			//System.out.println("Your Messages:");
+			print.println(getMessageList(name).size());
+			print.flush();
+			
+			try{sem_add_message.acquire();}
+			catch(Exception e){}
+
+			for (int i = 0; i<getMessageList(name).size(); i++)
+			{
+			    print.println(getMessageList(name).get(i));
+			    print.flush();
+			}
+			for (int i = getMessageList(name).size()-1; i >= 0; i--)
+			{
+			    getMessageList(name).remove(i);
+			}
+			
+			try{sem_add_message.release();}
+			catch(Exception e){}
+			
 			System.out.println(ft.format(date)+name+" gets messages.");
 			break;
 		    case 7:
