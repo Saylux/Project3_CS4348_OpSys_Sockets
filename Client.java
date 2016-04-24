@@ -4,19 +4,6 @@ import java.net.Socket;
 
 public class Client
 {
-	public static void displayMenu()
-	{
-	    System.out.println();
-	    System.out.println("1. Display the names of all known users.");
-	    System.out.println("2. Display the names of all currently connected users.");
-	    System.out.println("3. Send a text message to a particular user.");
-	    System.out.println("4. Send a text message to all currently connected users.");
-	    System.out.println("5. Send a text message to all known users.");
-	    System.out.println("6. Get my Messages.");
-	    System.out.println("7. Exit.");
-	    //System.out.println("//////////////////////////////");
-
-	}
     public static void main(String args[]) throws IOException
     {
 	int port = Integer.parseInt(args[1]);//3010;
@@ -50,39 +37,26 @@ public class Client
 		
 	}
 	boolean exit = false;
-	label:
 	while(!exit)
 	{
 	    //System.out.println("//////////////////////////////");
 	    //System.out.println("//The Following numbers are selectable Menu Choices");
-	    displayMenu();
+	    System.out.println();
+	    System.out.println("1. Display the names of all known users.");
+	    System.out.println("2. Display the names of all currently connected users.");
+	    System.out.println("3. Send a text message to a particular user.");
+	    System.out.println("4. Send a text message to all currently connected users.");
+	    System.out.println("5. Send a text message to all known users.");
+	    System.out.println("6. Get my Messages.");
+	    System.out.println("7. Exit.");
+	    //System.out.println("//////////////////////////////");
+
 	    System.out.print("Enter your choice: ");
 	    String choiceStr = scan.nextLine();
 	    print.println(choiceStr);
 	    print.flush();
 	    System.out.println();
-	   int choice;
-
-	   while (true)
-	   {
-	   	try
-	    	{
-	    		choice = Integer.parseInt(choiceStr);
-			break;
-	    	}
-	    	catch(NumberFormatException e)
-	   	{
-			System.out.println("Error: Menu choice is not a digit, please try again");
-			//print.println("ERROR: User did not enter a digit for menu choice");
-			displayMenu();
-			System.out.println("Enter your choice");
-			choiceStr = scan.nextLine();
-		}
-		print.println(choiceStr);
-		print.flush();
-		System.out.println();
-	    }
-
+	    int choice = Integer.parseInt(choiceStr);
 	    switch(choice)
 	    {
 	    case 1:

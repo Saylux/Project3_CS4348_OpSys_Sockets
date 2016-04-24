@@ -47,7 +47,7 @@ public class Server
 		InputStreamReader inputStream = new InputStreamReader(localClient.getInputStream());
 		BufferedReader input = new BufferedReader(inputStream);
 		PrintStream print = new PrintStream(localClient.getOutputStream());
-	
+		//System.out.println();
 		print.println("Server is Responding");
 		print.flush();
 		boolean doName = true;
@@ -64,9 +64,9 @@ public class Server
 		    else
 		    {
 			if(knownUsers.indexOf(name) > -1)
-			    System.out.println(ft.format(date)+"Connection by known user "+name + ".");
+			    System.out.println(ft.format(new Date())+"Connection by known user "+name + ".");
 			else
-			    System.out.println(ft.format(date)+"Connection by unknown user "+name + ".");
+			    System.out.println(ft.format(new Date())+"Connection by unknown user "+name + ".");
 		    }
 		    if(knownUsers.indexOf(name) == -1)
 		    {
@@ -75,8 +75,8 @@ public class Server
 		    }
 		    print.println(doName);
 		    print.flush();
+		    connectedUsers.add(name);
 		}
-	 	connectedUsers.add(name);
 		boolean exit = false;
 		while(!exit)
 		{
@@ -90,7 +90,7 @@ public class Server
 		    switch (choice)
 		    {
 		    case 1:
-			System.out.println(ft.format(date)+name+" displays all known users.");
+			System.out.println(ft.format(new Date())+name+" displays all known users.");
 			print.println(knownUsers.size());
 			print.flush();
 			for(int i = 0; i<knownUsers.size(); i++)
@@ -99,7 +99,7 @@ public class Server
 			}
 			break;
 		    case 2:
-			System.out.println(ft.format(date)+name+" displays all connected users.");
+			System.out.println(ft.format(new Date())+name+" displays all connected users.");
 			print.println(connectedUsers.size());
 			print.flush();
 			for(int i = 0; i<connectedUsers.size(); i++)
@@ -115,31 +115,31 @@ public class Server
 			    knownUsers.add(reciever);
 			}
 			String message = input.readLine();
-			String fullMessage = "From "+name+", "+ft.format(date)+message;
+			String fullMessage = "From "+name+", "+ft.format(new Date())+message;
 			
 			addMessage(reciever, fullMessage);
-			System.out.println(ft.format(date)+name+" posts a message for "+reciever+".");
+			System.out.println(ft.format(new Date())+name+" posts a message for "+reciever+".");
 			break;
 		    case 4:
 			String message2 = input.readLine();
-			String fullMessage2 = "From "+name+", "+ft.format(date)+message2;
+			String fullMessage2 = "From "+name+", "+ft.format(new Date())+message2;
 			
 			for(int i = 0; i< connectedUsers.size(); i++)
 			{
 			    addMessage(connectedUsers.get(i), fullMessage2);    
 			}
 			
-			System.out.println(ft.format(date)+name+" posts a message for all connected users.");
+			System.out.println(ft.format(new Date())+name+" posts a message for all connected users.");
 			break;
 		    case 5:
 			String message3 = input.readLine();
-			String fullMessage3 = "From "+name+", "+ft.format(date)+message3;
+			String fullMessage3 = "From "+name+", "+ft.format(new Date())+message3;
 			
 			for(int i = 0; i< knownUsers.size(); i++)
 			{
 			    addMessage(knownUsers.get(i), fullMessage3);    
 			}
-			System.out.println(ft.format(date)+name+" posts a message for all known users.");
+			System.out.println(ft.format(new Date())+name+" posts a message for all known users.");
 			break;
 		    case 6:
 			//System.out.println("Your Messages:");
@@ -162,19 +162,19 @@ public class Server
 			try{sem_add_message.release();}
 			catch(Exception e){}
 			
-			System.out.println(ft.format(date)+name+" gets messages.");
+			System.out.println(ft.format(new Date())+name+" gets messages.");
 			break;
 		    case 7:
-			System.out.println(ft.format(date)+name+" exits");
+			System.out.println(ft.format(new Date())+name+" exits");
 			exit = true;
 			break;
 		    default:
-			System.out.println("ERROR: User gave invalid entry");
+			System.out.println("ERROR: User gave bad entry (Not 1-7)");
 			break;
 		    }
 		}
 		//localClient.close();
-		connectedUsers.remove(connectedUsers.indexOf(name));
+		connectedUsers.remove(name);
 	    }
 	    catch(IOException e){}
 	    
@@ -188,6 +188,11 @@ public class Server
 	//String name = "";
 	Server s = new Server();
 	ServerSocket server = new ServerSocket(port);
+	System.out.println();
+	System.out.println("Server is running on cslinux1.utdallas.edu:"+port);
+	System.out.println();
+	System.out.println();
+	//System.out.println("...");
 	while(true)
 	{
 	    Socket client = server.accept();
